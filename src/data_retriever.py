@@ -21,6 +21,6 @@ d = np.load(args.input)
 
 index_i = lat_up*scale - int(lat*scale)
 index_j = long_up*scale - int(long*scale)
-
-print(d[index_i][index_j])
+result = d[index_i][index_j]
+print(abs(result) * 100)
 sys.stdout.flush()
