@@ -1,0 +1,188 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    title Earth Quake Predictor
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css')
+    script(defer='', src='https://use.fontawesome.com/releases/v5.3.1/js/all.js')
+  body
+    nav.navbar(role='navigation', aria-label='main navigation')
+      .navbar-brand
+        a.navbar-item(href='https://github.com/Genius1237/earthquake_predictor')
+          img(src='./images/earthquake.png', width='38', height='38')
+        a.navbar-burger.burger(role='button', aria-label='menu', aria-expanded='false', data-target='navbarBasicExample')
+          span(aria-hidden='true')
+          span(aria-hidden='true')
+          span(aria-hidden='true')
+      #navbarBasicExample.navbar-menu
+        .navbar-start
+          a.navbar-item
+            | Home
+          a.navbar-item(href="https://github.com/Genius1237/earthquake_predictor/wiki")
+            | Help
+          .navbar-item.has-dropdown.is-hoverable
+            a.navbar-link
+              | More
+            .navbar-dropdown
+              a.navbar-item(href="https://github.com/Genius1237/earthquake_predictor")
+                | About
+              a.navbar-item(href="https://github.com/Genius1237/earthquake_predictor")
+                | View Source Code
+              hr.navbar-divider
+              a.navbar-item(href="https://github.com/Genius1237/earthquake_predictor/issues")
+                | Report an issue
+    section.section.container
+      div.content
+        div.box
+          h3 Location
+          p View your current location in Google Maps
+          p You need to allow #[strong Location Services] on your browser.
+        div.box
+          h4 Maps
+          p Just click on the map to drop a marker and find badness.
+          #map(style="height: 0; overflow: hidden; padding-bottom: 50%; padding-top: 30px; position: relative;")
+        div.box
+          h4 Prediction Details
+          p View what the algorithm predicted.
+    script.
+      document.addEventListener('DOMContentLoaded', () => {
+
+        // Get all "navbar-burger" elements
+        const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+        // Check if there are any navbar burgers
+        if ($navbarBurgers.length > 0) {
+
+          // Add a click event on each of them
+          $navbarBurgers.forEach( el => {
+            el.addEventListener('click', () => {
+
+              // Get the target from the "data-target" attribute
+              const target = el.dataset.target;
+              const $target = document.getElementById(target);
+
+              // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+              el.classList.toggle('is-active');
+              $target.classList.toggle('is-active');
+
+            });
+          });
+        }
+      });
+      var map, infoWindow;
+      var activeMarkers = [];
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: -34.397, lng: 150.644},
+        zoom: 8
+        });
+        infoWindow = new google.maps.InfoWindow;
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+        var pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+        };
+        setMarker(pos.lat,pos.lng);
+        infoWindow.setPosition(pos);
+        infoWindow.setContent('You are here!');
+        infoWindow.open(map);
+        map.setCenter(pos);
+        pos = {
+            data:{
+            lat:position.coords.latitude,
+            lng:position.coords.longitude
+          }
+          }
+        makePrediction(pos);
+        }
+        , function() {
+        handleLocationError(true, infoWindow, map.getCenter());
+        });
+        } else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infoWindow, map.getCenter());
+        }
+      }
+      function setMarker(lat,lng){
+        activeMarkers.forEach(itm => itm.setMap(null))
+        activeMarkers = []
+        var marker = new google.maps.Marker({
+          position: {lat: lat, lng: lng},
+          title:"You are here!",
+          draggable:true,
+          animation: google.maps.Animation.DROP
+        });
+        marker.setMap(map);
+        map.addListener('center_changed', function() {
+          window.setTimeout(function() {
+            map.panTo(marker.getPosition());
+          }, 3000);
+        });
+        marker.addListener('click', function() {
+          map.setZoom(18);
+          map.setCenter(marker.getPosition());
+        });
+        google.maps.event.addListener(marker, 'dragend', function(marker) 
+        {
+          var latLng = marker.latLng; 
+          currentLatitude = latLng.lat();
+          currentLongitude = latLng.lng();
+          console.log(currentLatitude);
+          console.log(currentLongitude);
+          pos = {
+            data:{
+            lat:currentLatitude,
+            lng:currentLongitude
+          }
+          }
+          makePrediction(pos);
+        });
+        activeMarkers.push(marker)
+      }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+        'Error: The Geolocation service failed.' :
+        'Error: Your browser doesn\'t support geolocation.');
+        infoWindow.open(map);
+      }
+
+      function disableDrag(){
+        activeMarkers.forEach(itm => itm.setDraggable(false))
+      }
+
+      function enableDrag(){
+        activeMarkers.forEach(itm => itm.setDraggable(true))
+      }
+
+      function makePrediction(pos){
+        disableDrag();
+        fetch("/predict",
+        {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            method: "POST",
+            body: JSON.stringify(pos)
+        })
+        .then(function(res){ console.log(res);
+        enableDrag();
+        makePlot(res) })
+        .catch(function(res){ console.log(res); 
+        enableDrag(); })
+      }
+
+      function makePlot(val){
+                console.log(val);
+        val = JSON.stringify(val);
+      }
+      const sleep = (milliseconds) => {
+        return new Promise(resolve => setTimeout(resolve, milliseconds))
+      }
+
+    script(async='', defer='', src='https://maps.googleapis.com/maps/api/js?key=AIzaSyAu5C5ZfYKFxvjC1yZQGDn04do1tAoLh48&callback=initMap')
