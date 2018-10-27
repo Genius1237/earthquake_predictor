@@ -6,6 +6,8 @@ We have a solution for this, a website hosted on Azure that will tell you what w
 
 The website has an UI powered by map engine like Bing Maps or OpenStreetMap. The user selects a location on the map and the website shows a badness score(with respect to earthquakes) for for that place
 
+The website is at https://104.211.89.243/ (Temporarily allow the SSL certificate)
+
 ![The Website](https://github.com/Genius1237/earthquake_predictor/raw/master/Screenshot%20from%202018-10-27%2020-27-17.png)
 
 # The Model
