@@ -1,19 +1,16 @@
-# An overly complex Earthquake Predictor
+# An overly complex Earthquake Badness Predictor
 
-One needs to be prepared to know what will happen if an earthquake striked his home.
+One needs to be prepared to know how bad of an earthquake would strike his home.
 
 We have a solution for this, a website hosted on Azure that will tell you what will exactly happen.
 
-The website has an UI powered by map engine like Bing Maps or OpenStreetMap. The user selects a location on the map and inputs the magnitude of the would be earthquake. 
+The website has an UI powered by map engine like Bing Maps or OpenStreetMap. The user selects a location on the map and the website shows a badness score(with respect to earthquakes) for for that place
+
+![The Website]()
 
 # The Model
-A model, trained on historical data of earthquakes, takes in the location and magnitude and predicts the following facts for an earthquake striking at that location
-1. Number of Deaths
-2. Number of Missing Persons
-3. Number of Injuries
-4. Nuber of Houses destroyed and damaged
-5. Damage Costs
-6. Chance of a Tsunami
+The model is trained on data of earthquakes from 1955 onwards obtained from https://www.kaggle.com/usgs/earthquake-database.
+Using a machine learning model and the inverse square law, we assign a score to every location on the map. The model makes use of the magnitude data from the earthquakes from the past.
 
 # End-User usability
-Using the death count outputted by the model, a heatmap is developed and overlayed on top of a map, thus providing an indicator for how dangerous each area is. People can determine how dangerous an area is before deciding to live there, thus providing an ahead of time disaster warning.
+Using the badness factor outputted by the model, a heatmap is developed and overlayed on top of a map, thus providing an indicator for how dangerous each area is. People can determine how dangerous an area is before deciding to live there, thus providing an ahead of time disaster warning.
